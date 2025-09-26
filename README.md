@@ -156,15 +156,15 @@ POST /api/url/shorten
 
 {
 
-&nbsp; "id": 1,
+"id": 1,
 
-&nbsp; "originalUrl": "https://example.com",
+"originalUrl": "https://example.com",
 
-&nbsp; "shortCode": "Ab12Cd",
+"shortCode": "Ab12Cd",
 
-&nbsp; "expireAt": "2025-09-27T12:00:00",
+"expireAt": "2025-09-27T12:00:00",
 
-&nbsp; "clickCount": 0
+"clickCount": 0
 
 }
 
