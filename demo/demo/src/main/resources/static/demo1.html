@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>短網址生成器</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        input, button { padding: 8px; margin: 5px 0; }
+        .short-url { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>短網址生成器</h1>
+    <label>原始網址:</label><br>
+    <input type="url" id="originalUrl" placeholder="https://example.com" required><br>
+
+    <label>過期時間 (可選):</label><br>
+    <input type="datetime-local" id="expireAt"><br>
+
+    <button id="generateBtn">生成短網址</button>
+
+    <div class="short-url" id="result"></div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const originalUrl = document.getElementById('originalUrl').value;
+            const expireAt = document.getElementById('expireAt').value;
+
+            if (!originalUrl) {
+                alert('請輸入原始網址');
+                return;
+            }
+
+            const params = new URLSearchParams({ originalUrl });
+            if (expireAt) params.append('expireAt', expireAt);
+
+            fetch('/api/url/shorten?' + params.toString(), { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    const shortUrl = `${window.location.origin}/api/url/${data.shortCode}`;
+                    document.getElementById('result').innerHTML = 
+                        `短網址: <a href="${shortUrl}" target="_blank">${shortUrl}</a>`;
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('生成失敗');
+                });
+        });
+    </script>
+</body>
+</html>
