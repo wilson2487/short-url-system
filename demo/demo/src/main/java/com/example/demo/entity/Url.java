@@ -24,18 +24,32 @@ public class Url {
     private LocalDateTime expireAt;
 
     @Column(name = "click_count", nullable = false)
-    private Integer clickCount = 0;
+    private Long clickCount = 0L;
 
-    // Constructors
+    /**
+     * 預設建構子
+     * 用於JPA實體映射
+     */
     public Url() {}
 
+    /**
+     * 建構子
+     * 創建URL實體時初始化基本屬性
+     * 
+     * @param originalUrl 原始URL地址
+     * @param shortCode 短鏈接代碼
+     * @param expireAt 過期時間
+     */
     public Url(String originalUrl, String shortCode, LocalDateTime expireAt) {
         this.originalUrl = originalUrl;
         this.shortCode = shortCode;
         this.expireAt = expireAt;
     }
 
-    // Getters & Setters
+    /**
+     * Getters & Setters
+     * 實體屬性的存取方法
+     */
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -51,9 +65,22 @@ public class Url {
     public LocalDateTime getExpireAt() { return expireAt; }
     public void setExpireAt(LocalDateTime expireAt) { this.expireAt = expireAt; }
 
-    public Integer getClickCount() { return clickCount; }
-    public void setClickCount(Integer clickCount) { this.clickCount = clickCount; }
+    public Long getClickCount() { return clickCount; }
+    public void setClickCount(Long clickCount) { this.clickCount = clickCount; }
+    /**
+     * 增加點擊次數
+     * 將指定數量加到當前點擊次數上
+     * 
+     * @param count 要增加的量
+     */
+    public void addClickCount(Long count) {
+        this.clickCount += count;
+    }
 
+    /**
+     * 增加一次點擊
+     * 將點擊次數加1
+     */
     public void incrementClickCount() {
         this.clickCount++;
     }

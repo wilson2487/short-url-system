@@ -5,47 +5,80 @@
     <title>短網址生成器</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 50px; }
-        input, button { padding: 8px; margin: 5px 0; }
+        input, button { padding: 8px; margin: 5px 0; width: 300px; }
         .short-url { margin-top: 20px; }
+        .log { margin-top: 20px; font-size: 0.9em; color: #555; }
     </style>
 </head>
 <body>
-    <h1>短網址生成器</h1>
-    <label>原始網址:</label><br>
-    <input type="url" id="originalUrl" placeholder="https://example.com" required><br>
+<h1>短網址生成器</h1>
 
-    <label>過期時間 (可選):</label><br>
-    <input type="datetime-local" id="expireAt"><br>
+<label>原始網址:</label><br>
+<input type="url" id="originalUrl" placeholder="https://example.com" required><br>
 
-    <button id="generateBtn">生成短網址</button>
+<label>過期時間 (可選):</label><br>
+<input type="datetime-local" id="expireAt"><br>
 
-    <div class="short-url" id="result"></div>
+<button id="generateBtn">生成短網址</button>
 
-    <script>
-        document.getElementById('generateBtn').addEventListener('click', () => {
-            const originalUrl = document.getElementById('originalUrl').value;
-            const expireAt = document.getElementById('expireAt').value;
+<div class="short-url" id="result"></div>
+<div class="log" id="log"></div>
 
-            if (!originalUrl) {
-                alert('請輸入原始網址');
-                return;
+<script>
+    document.getElementById('generateBtn').addEventListener('click', () => {
+        const originalUrl = document.getElementById('originalUrl').value;
+        const expireAt = document.getElementById('expireAt').value;
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML = '';
+
+        if (!originalUrl) {
+            alert('請輸入原始網址');
+            return;
+        }
+
+        let payload = { originalUrl };
+        if (expireAt) payload.expireAt = new Date(expireAt).toISOString();
+
+        fetch('/api/url/shorten', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(async response => {
+            if (!response.ok) {
+                const text = await response.text().catch(() => '');
+                throw new Error(`HTTP ${response.status} ${response.statusText} ${text}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const maybeData = data && typeof data === 'object' ? data : {};
+            const nested = maybeData.data && typeof maybeData.data === 'object' ? maybeData.data : {};
+            const shortCode = maybeData.shortCode || maybeData.code || nested.shortCode || nested.code;
+            const shortUrlFromApi = maybeData.shortUrl || nested.shortUrl;
+
+            let shortUrl;
+            if (shortUrlFromApi && typeof shortUrlFromApi === 'string' && shortUrlFromApi.trim() !== '') {
+                shortUrl = shortUrlFromApi;
+            } else if (shortCode && typeof shortCode === 'string' && shortCode.trim() !== '') {
+                shortUrl = `${window.location.origin}/api/url/${shortCode}`;
+            } else {
+                throw new Error(`Unexpected API response (no shortUrl/shortCode): ${JSON.stringify(data)}`);
             }
 
-            const params = new URLSearchParams({ originalUrl });
-            if (expireAt) params.append('expireAt', expireAt);
-
-            fetch('/api/url/shorten?' + params.toString(), { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    const shortUrl = `${window.location.origin}/api/url/${data.shortCode}`;
-                    document.getElementById('result').innerHTML = 
-                        `短網址: <a href="${shortUrl}" target="_blank">${shortUrl}</a>`;
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('生成失敗');
-                });
+            document.getElementById('result').innerHTML =
+                `短網址: <a href="${shortUrl}" target="_blank">${shortUrl}</a>`;
+            logDiv.innerHTML = `
+                原始網址: ${originalUrl}<br>
+                過期時間: ${expireAt ? expireAt : '未設定'}<br>
+                短網址已生成，點擊即可跳轉
+            `;
+        })
+        .catch(err => {
+            console.error(err);
+            alert('生成失敗: ' + err.message);
         });
-    </script>
+    });
+</script>
 </body>
 </html>
