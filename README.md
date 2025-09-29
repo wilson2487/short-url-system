@@ -206,6 +206,52 @@ cp application-example.properties application.properties
 - **批量處理**：支援多個短網址的計數同步
 - **容錯機制**：Redis 或資料庫異常時不影響系統運行
 
+## JUnit 測試
+
+本專案使用 **JUnit 5** 和 **Mockito** 進行 Service 層單元測試，確保業務邏輯的正確性。
+
+### 測試結構
+
+```
+src/test/java/com/example/demo/
+└─ service/
+  └─ UrlServiceTest.java          # UrlService 單元測試
+```
+
+### 測試覆蓋範圍
+
+#### UrlService 單元測試
+- **檔案**：`UrlServiceTest.java`
+- **測試框架**：JUnit 5 + Mockito
+- **測試內容**：
+  - **短碼生成測試**：驗證短碼長度為 6 位
+  - **短碼唯一性測試**：驗證重複短碼時會重新生成
+
+### 執行測試
+
+#### 執行 Service 測試
+```bash
+./mvnw test -Dtest=UrlServiceTest
+```
+
+#### 執行特定測試方法
+```bash
+./mvnw test -Dtest=UrlServiceTest#testShortCodeGeneration
+./mvnw test -Dtest=UrlServiceTest#testShortCodeUniqueness
+```
+
+### 測試配置
+
+測試使用以下依賴：
+- **JUnit 5**：主要測試框架
+- **Mockito**：Mock 物件框架
+
+### 測試策略
+
+1. **單元測試**：使用 Mockito 模擬外部依賴（Repository、Redis 等）
+2. **測試隔離**：每個測試方法獨立執行，不依賴其他測試
+3. **Mock 策略**：模擬資料庫操作，專注測試業務邏輯
+
 ## 注意事項
 
 - 靜態 HTML 頁面放在 `src/main/resources/static/`
