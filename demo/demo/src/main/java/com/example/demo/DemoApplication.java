@@ -21,6 +21,9 @@ public class DemoApplication {
 	 * @param args 命令行參數
 	 */
 	public static void main(String[] args) {
+		System.out.println("==== DEBUG ENV ====");
+		System.out.println("RABBITMQ_HOST is: " + System.getenv("RABBITMQ_HOST"));
+		System.out.println("===================");
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
