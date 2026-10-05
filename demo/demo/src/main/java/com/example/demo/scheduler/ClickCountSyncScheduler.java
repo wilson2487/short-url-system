@@ -58,7 +58,9 @@ public class ClickCountSyncScheduler {
                     log.info("[syncClickCount] synced {} -> +{} (total={})", shortCode, count, newCount);
                 });
             } catch (Exception e) {
-                log.warn("[syncClickCount] failed for key {}: {}", key, e.getMessage());
+               // 傳入完整的 Exception 物件 e，讓 Spring 幫你印出包含 Root Cause 的詳細錯誤堆疊
+                log.error("[syncClickCount] fetch keys failed", e);
+                return;
             }
         }
     }
